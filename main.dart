@@ -1,73 +1,131 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(home: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  var total = 3;
+  var name = ['김영숙', '홍길동', '피자집'];
+  var like = [0, 0, 0];
+
+  addOne() {
+    setState(() {
+      total++;
+    });
+  }
+
+  addName(a) {
+    setState(() {
+      name.add(a);
+      like.add(0);
+      
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          actions: [
-            SizedBox(
-              width: 150,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Icon(Icons.search),
-                  Icon(Icons.menu),
-                  Icon(Icons.notifications_none_outlined),
-                ],
-              ),
-            )
-          ],
-          leading: Icon(Icons.arrow_drop_down),
-          title: Text('금호동3가'),
-        ),
-        body: Container(
-          width: double.infinity,
-          height: 150,
-          padding: EdgeInsets.all(15),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 150,
-                height: 150,
-                child: Image.asset('ford.jpg'),
-              ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Ford Mustang',
-                    style: TextStyle(fontSize: 18),
-                  ),
-                  Text(
-                    '성동구 행당동 · 끌올 10분 전',
-                    style: TextStyle(fontSize: 12, color: Colors.black54),
-                  ),
-                  Text(
-                    '1억 5000만 원',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-                  ),
-                  SizedBox(
-                    width: 300,
-                    height: 20,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [Icon(Icons.favorite_border), Text('4')],
-                    ),
-                  )
-                ],
-              ),
-            ],
+    return Scaffold(
+      floatingActionButton: Builder(builder: (context) {
+        return FloatingActionButton(
+          onPressed: () {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return DialogUI(
+                    addOne: addOne,
+                    addName: addName,
+                  );
+                });
+          },
+        );
+      }),
+      appBar: AppBar(
+        title: Text(total.toString(), style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.blue,
+      ),
+      body: ListView.builder(
+        itemCount: name.length,
+        itemBuilder: (c, i) {
+          return ListTile(
+            leading: Icon(
+              Icons.account_circle,
+              size: 40,
+            ),
+            title: Text(name[i] + like[i].toString()),
+            trailing: TextButton(
+                onPressed: () {
+                  setState(() {
+                    like[i]++;
+                  });
+                },
+                child: Text('좋아요')),
+          );
+        },
+      ),
+      bottomNavigationBar: BottomDesign(),
+    );
+  }
+}
+
+class DialogUI extends StatelessWidget {
+  DialogUI({super.key, this.addOne, this.addName});
+  final addOne;
+  final addName;
+  var inputData = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Column(
+        children: [
+          Text('연락처 추가창'),
+          TextField(
+            controller: inputData,
           ),
-        ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('취소')),
+              TextButton(
+                  onPressed: () {
+                    addOne();
+                    addName(inputData.text);
+                    Navigator.pop(context);
+                  },
+                  child: Text('확인'))
+            ],
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class BottomDesign extends StatelessWidget {
+  const BottomDesign({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const BottomAppBar(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Icon(Icons.call),
+          Icon(Icons.message),
+          Icon(Icons.contact_page)
+        ],
       ),
     );
   }
